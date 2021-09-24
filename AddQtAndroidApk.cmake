@@ -299,6 +299,7 @@ macro(add_qt_android_apk TARGET SOURCE_TARGET)
     add_custom_target(
         ${TARGET}
         ALL
+        USES_TERMINAL
         DEPENDS ${SOURCE_TARGET}
         ${QT_ANDROID_PRE_COMMANDS}
         # it seems that recompiled libraries are not copied if we don't remove them first
