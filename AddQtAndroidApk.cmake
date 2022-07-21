@@ -64,7 +64,7 @@ include(CMakeParseArguments)
 #     INSTALL
 #)
 #
-macro(add_qt_android_apk TARGET SOURCE_TARGET)
+function(add_qt_android_apk TARGET SOURCE_TARGET)
 
     # parse the macro arguments
     cmake_parse_arguments(ARG "INSTALL" "NAME;VERSION_CODE;PACKAGE_NAME;PACKAGE_SOURCES;KEYSTORE_PASSWORD" "DEPENDS;KEYSTORE;APK_BUILD_TYPE" ${ARGN})
@@ -95,6 +95,8 @@ macro(add_qt_android_apk TARGET SOURCE_TARGET)
     else()
         set(QT_ANDROID_APP_PACKAGE_NAME org.qtproject.${SOURCE_TARGET})
     endif()
+
+    file(MAKE_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/${QT_ANDROID_APP_PACKAGE_NAME}")
 
     # detect latest Android SDK build-tools revision
     set(QT_ANDROID_SDK_BUILDTOOLS_REVISION "0.0.0")
@@ -148,7 +150,7 @@ macro(add_qt_android_apk TARGET SOURCE_TARGET)
         if(NOT QT_ANDROID_MANIFEST_TEMPLATE)
             set(QT_ANDROID_MANIFEST_TEMPLATE "${QT_ANDROID_SOURCE_DIR}/AndroidManifest.xml.in")
         endif()
-        configure_file(${QT_ANDROID_MANIFEST_TEMPLATE} ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml @ONLY)
+        configure_file(${QT_ANDROID_MANIFEST_TEMPLATE} ${CMAKE_CURRENT_BINARY_DIR}/${QT_ANDROID_APP_PACKAGE_NAME}/AndroidManifest.xml @ONLY)
 
         # define commands that will be added before the APK target build commands, to refresh the source package directory
         set(QT_ANDROID_PRE_COMMANDS ${QT_ANDROID_PRE_COMMANDS} COMMAND ${CMAKE_COMMAND} -E remove_directory ${QT_ANDROID_APP_PACKAGE_SOURCE_ROOT}) # clean the destination directory
@@ -156,7 +158,7 @@ macro(add_qt_android_apk TARGET SOURCE_TARGET)
         if(ARG_PACKAGE_SOURCES)
             set(QT_ANDROID_PRE_COMMANDS ${QT_ANDROID_PRE_COMMANDS} COMMAND ${CMAKE_COMMAND} -E copy_directory ${ARG_PACKAGE_SOURCES} ${QT_ANDROID_APP_PACKAGE_SOURCE_ROOT}) # copy the user package
         endif()
-        set(QT_ANDROID_PRE_COMMANDS ${QT_ANDROID_PRE_COMMANDS} COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml ${QT_ANDROID_APP_PACKAGE_SOURCE_ROOT}/AndroidManifest.xml) # copy the generated manifest
+        set(QT_ANDROID_PRE_COMMANDS ${QT_ANDROID_PRE_COMMANDS} COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_BINARY_DIR}/${QT_ANDROID_APP_PACKAGE_NAME}/AndroidManifest.xml ${QT_ANDROID_APP_PACKAGE_SOURCE_ROOT}/AndroidManifest.xml) # copy the generated manifest
     endif()
 
     # newer NDK toolchains don't define ANDROID_STL_PREFIX anymore,
@@ -317,4 +319,4 @@ macro(add_qt_android_apk TARGET SOURCE_TARGET)
         ${SIGN_OPTIONS}
     )
 
-endmacro()
+endfunction()
