@@ -200,7 +200,20 @@ function(add_qt_android_apk TARGET SOURCE_TARGET)
     # This allow to package multiple ABI in a single apk
     # For now we only support single ABI build with this script (to ensure it work with Qt5.14 & Qt5.15)
     if(QT_ANDROID_SUPPORT_MULTI_ABI)
-        set(QT_ANDROID_ARCHITECTURES "\"${ANDROID_ABI}\":\"${ANDROID_ABI}\"")
+      set(ANDROID_ABIS armeabi-v7a arm64-v8a x86 x86_64)
+      # Match Android's sysroots
+      set(ANDROID_SYSROOT_armeabi-v7a arm-linux-androideabi)
+      set(ANDROID_SYSROOT_arm64-v8a aarch64-linux-android)
+      set(ANDROID_SYSROOT_x86 i686-linux-android)
+      set(ANDROID_SYSROOT_x86_64 x86_64-linux-android)
+
+      unset(QT_ANDROID_ARCHITECTURES)
+      foreach(abi IN LISTS ANDROID_ABIS)
+	if (ANDROID_BUILD_ABI_${abi})
+	  list(APPEND QT_ANDROID_ARCHITECTURES "\"${abi}\" : \"${ANDROID_SYSROOT_${abi}}\"")
+	endif()
+      endforeach()
+      string(REPLACE ";" ",\n" QT_ANDROID_ARCHITECTURES "${QT_ANDROID_ARCHITECTURES}")
     endif()
 
     # set the list of dependant libraries
