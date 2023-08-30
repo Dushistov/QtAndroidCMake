@@ -139,6 +139,10 @@ function(add_qt_android_apk TARGET SOURCE_TARGET)
         if (EXISTS "${ARG_PACKAGE_SOURCES}/build.gradle.in")
           set(BUILD_GRADLE_TEMPLATE "${ARG_PACKAGE_SOURCES}/build.gradle.in")
         endif ()
+	if (EXISTS "${ARG_PACKAGE_SOURCES}/gradle.properties.in")
+	  message(STATUS "Found custom gradle.properties template")
+	  set(GRALDE_PROPS_TEMPLATE "${ARG_PACKAGE_SOURCES}/gradle.properties.in")
+	endif ()
     endif()
 
     # generate a source package directory if none was provided, or if we need to configure a manifest file
@@ -277,6 +281,9 @@ function(add_qt_android_apk TARGET SOURCE_TARGET)
     # 3. Configure build.gradle to properly work with Android Studio import
     set(QT_ANDROID_NATIVE_API_LEVEL ${ANDROID_NATIVE_API_LEVEL})
     configure_file(${BUILD_GRADLE_TEMPLATE} ${QT_ANDROID_APP_BINARY_DIR}/build.gradle @ONLY)
+    if (GRALDE_PROPS_TEMPLATE)
+      configure_file(${GRALDE_PROPS_TEMPLATE} ${QT_ANDROID_APP_BINARY_DIR}/gradle.properties @ONLY)
+    endif()
 
     # check if the apk must be signed
     if(ARG_KEYSTORE)
